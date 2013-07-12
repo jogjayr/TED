@@ -1,3 +1,4 @@
+'use strict';
 var FeedEntries = Backbone.Collection.extend({
 	fetch: function() {
 		var feed = new google.feeds.Feed(this.feedUrl);
@@ -13,21 +14,22 @@ var FeedEntries = Backbone.Collection.extend({
 	}
 });
 var FeedItemView = Backbone.View.extend({
-	tagName: "li",
+	tagName: 'li',
 	attributes: {
-		"class": "span4"
+		'class': 'span4'
 	},
 	_processTitle: function(title) {
-		var titleMinusTed = title.split("TED: ")[1];
-		var titleAndSpeaker = titleMinusTed.split(":");
-		return {
-			videoTitle: titleAndSpeaker[1].split(titleAndSpeaker[0])[0].replace("-", "").trim(),
-			speaker: titleAndSpeaker[0].trim()
-		};
+		var char_truncate = 40;
+		var title_without_ted_and_year = title.replace('TED:', '').replace('(' + new Date(Date.now()).getFullYear() + ')', '').trim();
+		var index_of_word_after_30_chars = title_without_ted_and_year.slice(char_truncate).indexOf(' ');
+		if(index_of_word_after_30_chars !== -1) index_of_word_after_30_chars = index_of_word_after_30_chars + char_truncate;
+		return title_without_ted_and_year.slice(0, index_of_word_after_30_chars) + '...';
 	},
 	compiledTpl: _.template($('#videoItemTemplate').html()),
 	render: function() {
-		var titleAndSpeaker = this._processTitle(this.model.attributes.title);
+		var titleAndSpeaker = {
+			videoTitle: this._processTitle(this.model.attributes.title)
+		};
 		titleAndSpeaker.thumbnailUrl = this.model.attributes.mediaGroups[0].contents[0].thumbnails[0].url;
 		titleAndSpeaker.videoBlurb = this.model.attributes.contentSnippet;
 		this.$el.html(this.compiledTpl(titleAndSpeaker));
