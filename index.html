@@ -41,11 +41,13 @@
                 Your browser doesn&amp;t appear to support playing this video. Click <a href='<%= videoUrl %>'>here</a> to download it (<%= (typeof fileSize === 'number') ? Utils.fileSizeToHumanReadable(fileSize) : '' %>)
             </video>
         </script>
+
         <script id='metaDataTemplate' type='text/template'>
             <p><%= content %></p>
-            <p><a href='<%= link %>'>View on Ted.com</a></p>
+            <p><a href='<%= link %>'>View on TED.com</a></p>
             <p><a href='<%= videoUrl %>'>Download video (<%= videoExtension %>)</a> - <%= Utils.fileSizeToHumanReadable(fileSize) %></p>
         </script>
+
         <script src="js/underscore.js"></script>
         <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.2/jquery.min.js"></script>
         <script src="js/backbone-min.js"></script>

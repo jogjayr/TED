@@ -1,3 +1,5 @@
+//Collection that fetches holds the RSS feed entries
+//Fetching 51 to have a multiple of 3 (looks good on my screen)
 var FeedEntries = Backbone.Collection.extend({
 	fetch: function() {
 		var feed = new google.feeds.Feed(this.feedUrl);
@@ -12,6 +14,7 @@ var FeedEntries = Backbone.Collection.extend({
 		this.feedUrl = config.feedUrl;
 	}
 });
+//Each individual element in the thumbnail grid
 var FeedItemView = Backbone.View.extend({
 	tagName: 'li',
 	attributes: {
@@ -31,6 +34,7 @@ var FeedItemView = Backbone.View.extend({
         }).render();
         $(evt.currentTarget).replaceWith(this._videoPlayer.$el);
     },
+    //TODO: could be better done with a regex?
 	_processTitle: function(title) {
 		var char_truncate = 50;
 		var title_without_ted_and_year = title.replace('TED:', '').replace('(' + new Date(Date.now()).getFullYear() + ')', '').trim();
@@ -84,13 +88,20 @@ var FeedItemView = Backbone.View.extend({
 		this.model.on("change:isVisible", this.toggleShow, this);
 	}
 });
-var FeedListView = Backbone.ViewCollection.extend({
 
-});
+//A view collection to hold the video thumbnail views
+var FeedListView = Backbone.ViewCollection.extend({});
 
+//Drives the search box (more accurately a filter box)
 var SearchView = Backbone.View.extend({
 	events: {
-		"keyup": "filterEntries"
+		'keyup': 'filterEntries',
+		'submit': 'preventSubmit'
+	},
+	preventSubmit: function(e) {
+		e.preventDefault();
+		e.stopPropagation();
+		return false;
 	},
 	filterEntries: function() {
 		var collection = this.collection;
@@ -128,7 +139,7 @@ var SearchView = Backbone.View.extend({
 			});
 		}
 		else if(typeof search_attributes === 'object') {
-			collection.each( function( model, key, collection ) {
+			collection.each(function( model, key, collection ) {
 				for (var i = search_attributes.length - 1; i >= 0; i--) {
 					var attr = search_attributes[i];
 					comparison_property = model.get(attr);
@@ -170,7 +181,7 @@ var SearchView = Backbone.View.extend({
 		else if(config.attributes && typeof config.attributes !== 'string') throw new Error('Attributes must be a string or an array of strings');
 	}
 });
-
+//a <video> element for each FeedItemView
 var VideoPlayer = Backbone.View.extend({
 	compiledTpl: _($('#videoPlayerTemplate').html()).template(),
 	render: function() {
@@ -186,6 +197,7 @@ var VideoPlayer = Backbone.View.extend({
 		}
 	}
 });
+//useful functions
 var Utils = {
 	fileSizeToHumanReadable: function (fileSize) {
 		var one_kb = 1024;
