@@ -32,6 +32,12 @@
                 <p><%= videoBlurb %></p>
             </div>
         </script>
+
+        <script type='text/template' id='videoPlayerTemplate'>
+            <video src="<%= videoUrl %>" autoplay controls poster='<%= thumbnailUrl %>'>
+                Your browser doesn&amp;t appear to support playing this video. Click <a href='<%= videoUrl %>'>here</a> to download it (<%= (typeof fileSize === 'number') ? fileSizeToHumanReadable(fileSize) : '' %>)
+            </video>
+        </script>
         <script src="js/underscore.js"></script>
         <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.2/jquery.min.js"></script>
         <script src="js/backbone-min.js"></script>

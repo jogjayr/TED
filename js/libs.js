@@ -19,9 +19,18 @@ var FeedItemView = Backbone.View.extend({
 		'class': 'span4'
 	},
 	events: {
-		// 'mouseover .video_pane': 'showDetails',
-		// 'mouseout .video_pane': 'hideDetails'
-	},
+        //TODO: use event delegation for this
+        'click .video_pane': 'playVideoInPlace'
+    },
+    playVideoInPlace: function(evt) {
+        var feed_entry_mediagroup_contents = this.model.attributes.mediaGroups[0].contents[0];
+        this._videoPlayer = new VideoPlayer({
+            videoUrl: feed_entry_mediagroup_contents.url,
+            thumbnailUrl: feed_entry_mediagroup_contents.thumbnails[0].url,
+            fileSize: feed_entry_mediagroup_contents.fileSize
+        }).render();
+        $(evt.currentTarget).replaceWith(this._videoPlayer.$el);
+    },
 	_processTitle: function(title) {
 		var char_truncate = 40;
 		var title_without_ted_and_year = title.replace('TED:', '').replace('(' + new Date(Date.now()).getFullYear() + ')', '').trim();
@@ -113,5 +122,34 @@ var SearchView = Backbone.View.extend({
 		}
 		else if(config.attributes && typeof config.attributes !== 'string') throw new Error('Attributes must be a string or an array of strings');
 	}
-
 });
+
+var VideoPlayer = Backbone.View.extend({
+	compiledTpl: _($('#videoPlayerTemplate').html()).template(),
+	render: function() {
+		this.$el = this.compiledTpl(this._videoData);
+		return this;
+	},
+	initialize: function(config) {
+		if(!config.videoUrl) throw new Error("Need video url");
+		this._videoData = {
+			videoUrl: config.videoUrl,
+			thumbnailUrl: config.thumbnailUrl || '',
+			fileSize: config.fileSize || ''
+		}
+	}
+});
+
+function fileSizeToHumanReadable (fileSize) {
+	var one_kb = 1024;
+	var one_mb = one_kb * 1024;
+	var one_gb = one_mb * 1024;
+	var one_tb = one_gb * 1024;
+	if(typeof fileSize === 'number') {
+		if(fileSize < one_kb) return fileSize + 'bytes';
+		else if(fileSize >= one_kb && fileSize < one_mb) return (fileSize / one_kb).toString() + 'kb';
+		else if(fileSize >= one_mb && fileSize < one_gb) return (fileSize / one_mb).toString() + 'mb';
+		else if(fileSize >= one_gb && fileSize < one_tb) return (fileSize / one_gb).toString() + 'mb';
+	}
+	else throw new Error('Not a number');
+}
