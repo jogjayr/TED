@@ -23,13 +23,14 @@
             <ul class="thumbnails" id='video_grid'>
             </ul>
         </div>
-
+        
         <script id='videoItemTemplate' type="text/template">
             <div class="thumbnail well">
                 <div style="background-image: url(<%= thumbnailUrl %>);" alt="" class='video_pane'>
                     <img src="img/white_arrow.png" class="play_arrow">
                 </div>
-                <h4><%= videoTitle %></h4>
+                <h4 class='video_title'><%= videoTitle %></h4>
+                <p><%= dateToHumanReadable(pubDate) %></p>
                 <p class='blurb'><%= videoBlurb %></p>
                 <input type="button" class="btn btn-link more_info" value='More info'>
             </div>
@@ -42,8 +43,8 @@
         </script>
         <script id='metaDataTemplate' type='text/template'>
             <p><%= content %></p>
-            <p>Published: <%= dateToHumanReadable(pubDate) %></p>
-            <p>File Size: <%= fileSizeToHumanReadable(fileSize) %></p>
+            <p><a href='<%= link %>'>View on Ted.com</a></p>
+            <p><a href='<%= videoUrl %>'>Download file</a> - <%= fileSizeToHumanReadable(fileSize) %></p>
         </script>
         <script src="js/underscore.js"></script>
         <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.2/jquery.min.js"></script>

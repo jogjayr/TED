@@ -16,7 +16,7 @@ var FeedEntries = Backbone.Collection.extend({
 var FeedItemView = Backbone.View.extend({
 	tagName: 'li',
 	attributes: {
-		'class': 'span4'
+		'class': 'span4 thumbnail_item'
 	},
 	events: {
         //TODO: use event delegation for this
@@ -33,11 +33,11 @@ var FeedItemView = Backbone.View.extend({
         $(evt.currentTarget).replaceWith(this._videoPlayer.$el);
     },
 	_processTitle: function(title) {
-		var char_truncate = 40;
+		var char_truncate = 50;
 		var title_without_ted_and_year = title.replace('TED:', '').replace('(' + new Date(Date.now()).getFullYear() + ')', '').trim();
-		var index_of_word_after_30_chars = title_without_ted_and_year.slice(char_truncate).indexOf(' ');
-		if(index_of_word_after_30_chars !== -1) index_of_word_after_30_chars = index_of_word_after_30_chars + char_truncate;
-		return title_without_ted_and_year.slice(0, index_of_word_after_30_chars) + '...';
+		var index_of_word_after_50_chars = title_without_ted_and_year.slice(char_truncate).indexOf(' ');
+		if(index_of_word_after_50_chars !== -1) index_of_word_after_50_chars = index_of_word_after_50_chars + char_truncate;
+		return title_without_ted_and_year.slice(0, index_of_word_after_50_chars) + '...';
 	},
 	compiledTpl: _.template($('#videoItemTemplate').html()),
 	compiledMetaDataTpl: _.template($('#metaDataTemplate').html()),
@@ -46,21 +46,37 @@ var FeedItemView = Backbone.View.extend({
 		else this.$el.hide();
 	},
 	toggleMoreInfo: function() {
-		var meta_data = {
-			content: this.model.attributes.content,
-			pubDate: this.model.attributes.publishedDate,
-			fileSize: this.model.attributes.mediaGroups[0].contents[0].fileSize
-		};
-		this._$blurb.html(this.compiledMetaDataTpl(meta_data));
+		if(!this._isExpanded) {
+			var model_attrs = this.model.attributes;
+			var meta_data = {
+				content: model_attrs.content,
+				pubDate: model_attrs.publishedDate,
+				fileSize: model_attrs.mediaGroups[0].contents[0].fileSize,
+				link: model_attrs.link,
+				videoUrl: model_attrs.mediaGroups[0].contents[0].url
+			};
+			this._$blurb.html(this.compiledMetaDataTpl(meta_data));
+			this._$info_toggle.val('Less Info');
+			this._$video_title.html(model_attrs.title);
+			this._isExpanded = true;
+		}
+		else {
+			this.render();
+			this._isExpanded = false;
+		}
 	},
 	render: function() {
-		var titleAndSpeaker = {
-			videoTitle: this._processTitle(this.model.attributes.title)
+		var model_attrs = this.model.attributes;
+		var template_data = {
+			videoTitle: this._processTitle(model_attrs.title)
 		};
-		titleAndSpeaker.thumbnailUrl = this.model.attributes.mediaGroups[0].contents[0].thumbnails[0].url;
-		titleAndSpeaker.videoBlurb = this.model.attributes.contentSnippet;
-		this.$el.html(this.compiledTpl(titleAndSpeaker));
+		template_data.thumbnailUrl = model_attrs.mediaGroups[0].contents[0].thumbnails[0].url;
+		template_data.videoBlurb = model_attrs.contentSnippet;
+		template_data.pubDate = model_attrs.publishedDate;
+		this.$el.html(this.compiledTpl(template_data));
 		this._$blurb = this.$('.blurb');
+		this._$info_toggle = this.$('.more_info');
+		this._$video_title = this.$('.video_title');
 		return this;
 	},
 	initialize: function() {
