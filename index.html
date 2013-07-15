@@ -23,13 +23,15 @@
             <ul class="thumbnails" id='video_grid'>
             </ul>
         </div>
+
         <script id='videoItemTemplate' type="text/template">
             <div class="thumbnail">
                 <div style="background-image: url(<%= thumbnailUrl %>);" alt="" class='video_pane'>
                     <img src="img/white_arrow.png" class="play_arrow">
                 </div>
                 <h3><%= videoTitle %></h3>
-                <p><%= videoBlurb %></p>
+                <p class='blurb'><%= videoBlurb %></p>
+                <input type="button" class="btn btn-link more_info" value='More info'>
             </div>
         </script>
 
@@ -37,6 +39,11 @@
             <video src="<%= videoUrl %>" autoplay controls poster='<%= thumbnailUrl %>'>
                 Your browser doesn&amp;t appear to support playing this video. Click <a href='<%= videoUrl %>'>here</a> to download it (<%= (typeof fileSize === 'number') ? fileSizeToHumanReadable(fileSize) : '' %>)
             </video>
+        </script>
+        <script id='metaDataTemplate' type='text/template'>
+            <p><%= content %></p>
+            <p>Published: <%= dateToHumanReadable(pubDate) %></p>
+            <p>File Size: <%= fileSizeToHumanReadable(fileSize) %></p>
         </script>
         <script src="js/underscore.js"></script>
         <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.2/jquery.min.js"></script>

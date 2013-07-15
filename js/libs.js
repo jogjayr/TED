@@ -20,7 +20,8 @@ var FeedItemView = Backbone.View.extend({
 	},
 	events: {
         //TODO: use event delegation for this
-        'click .video_pane': 'playVideoInPlace'
+        'click .video_pane': 'playVideoInPlace',
+        'click .more_info': 'toggleMoreInfo'
     },
     playVideoInPlace: function(evt) {
         var feed_entry_mediagroup_contents = this.model.attributes.mediaGroups[0].contents[0];
@@ -39,15 +40,18 @@ var FeedItemView = Backbone.View.extend({
 		return title_without_ted_and_year.slice(0, index_of_word_after_30_chars) + '...';
 	},
 	compiledTpl: _.template($('#videoItemTemplate').html()),
-	showDetails: function() {
-		this.$el.addClass('video_details');
-	},
-	hideDetails: function() {
-		this.$el.removeClass('video_details');
-	},
+	compiledMetaDataTpl: _.template($('#metaDataTemplate').html()),
 	toggleShow: function(feed_entry) {
 		if(feed_entry.attributes.isVisible) this.$el.show();
 		else this.$el.hide();
+	},
+	toggleMoreInfo: function() {
+		var meta_data = {
+			content: this.model.attributes.content,
+			pubDate: this.model.attributes.publishedDate,
+			fileSize: this.model.attributes.mediaGroups[0].contents[0].fileSize
+		};
+		this._$blurb.html(this.compiledMetaDataTpl(meta_data));
 	},
 	render: function() {
 		var titleAndSpeaker = {
@@ -56,6 +60,7 @@ var FeedItemView = Backbone.View.extend({
 		titleAndSpeaker.thumbnailUrl = this.model.attributes.mediaGroups[0].contents[0].thumbnails[0].url;
 		titleAndSpeaker.videoBlurb = this.model.attributes.contentSnippet;
 		this.$el.html(this.compiledTpl(titleAndSpeaker));
+		this._$blurb = this.$('.blurb');
 		return this;
 	},
 	initialize: function() {
@@ -145,11 +150,19 @@ function fileSizeToHumanReadable (fileSize) {
 	var one_mb = one_kb * 1024;
 	var one_gb = one_mb * 1024;
 	var one_tb = one_gb * 1024;
-	if(typeof fileSize === 'number') {
+	if(typeof fileSize !== 'number') fileSize = parseFloat(fileSize);
+	if(isNaN(fileSize)) throw new Error('Not a number'); 
+	else {
 		if(fileSize < one_kb) return fileSize + 'bytes';
 		else if(fileSize >= one_kb && fileSize < one_mb) return (fileSize / one_kb).toString() + 'kb';
 		else if(fileSize >= one_mb && fileSize < one_gb) return (fileSize / one_mb).toString() + 'mb';
 		else if(fileSize >= one_gb && fileSize < one_tb) return (fileSize / one_gb).toString() + 'mb';
 	}
-	else throw new Error('Not a number');
+}
+function dateToHumanReadable (date) {
+ 	var date_obj = new Date(date);
+	if(date_obj.toString !== 'Invalid Date') {
+		return date_obj.toLocaleString();
+	}
+	return '';
 }
