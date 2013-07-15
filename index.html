@@ -12,11 +12,9 @@
         <div class="navbar navbar-static-top navbar-inverse">
             <div class="navbar-inner">
              <div class="container">
-                    <!-- <h1> -->
-                     <a href="/" class="brand">TED Talks</a>
-                 <!-- </h1> -->
+                 <a href="/" class="brand">TED Talks</a>
                  <form class="navbar-search pull-right">
-                   <input type="text" class="search-query" placeholder="Search">
+                   <input id='filter' type="text" class="search-query" placeholder="Search">
                  </form>
              </div>
             </div>
@@ -24,22 +22,10 @@
         <div class="container videos_page">
             <ul class="thumbnails" id='video_grid'>
             </ul>
-            <!-- <div class="row-fluid">
-                <div class="span6 video_container">
-                    <img class='img_thumbnail' src="http://images.ted.com/images/ted/e6590fd9b49cdc7270dc0bc03593ee840f4a5585_480x360.jpg" alt="">
-                    <div class="video_title"></div>
-                    <div class="video_blurb"></div>
-                </div>
-                <div class="span6 video_container">
-                    <img class='img_thumbnail' src="http://images.ted.com/images/ted/5817df5175966f8f2051620a1a64508b6aec8c54_480x360.jpg" alt="">
-                    <div class="video_title"></div>
-                    <div class="video_blurb"></div>
-                </div>
-            </div> -->
         </div>
         <script id='videoItemTemplate' type="text/template">
             <div class="thumbnail">
-                <img src="<%= thumbnailUrl %>" alt="">
+                <div style="background-image: url(<%= thumbnailUrl %>);" alt="" class='video_pane'></div>
                 <h3><%= videoTitle %></h3>
                 <p><%= videoBlurb %></p>
             </div>
@@ -59,11 +45,11 @@
         <script>
             google.load("feeds", "1");
             google.setOnLoadCallback(function() {
-                TedFeed.fetch();
-                window.TedFeedView = new FeedListView({
+                Ted.Feed.fetch();
+                Ted.FeedView = new FeedListView({
                     el: "#video_grid",
                     BaseViewClass: FeedItemView,
-                    collection: TedFeed
+                    collection: Ted.Feed
                 });
             });
         </script>

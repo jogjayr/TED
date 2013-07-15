@@ -4,3 +4,21 @@
 .video_container {
 	text-align: center;
 }
+.video_pane {
+	height: 270px;
+	background-repeat: no-repeat;
+	background-position: 0 0;
+	-webkit-transition: background-position .25s ease-out;
+	   -moz-transition: background-position .25s ease-out;
+	    -ms-transition: background-position .25s ease-out;
+	     -o-transition: background-position .25s ease-out;
+	        transition: background-position .25s ease-out;
+}
+.video_details .video_pane {
+	background-position: 0 -500px;
+	-webkit-transition: background-position .75s ease-out;
+	   -moz-transition: background-position .75s ease-out;
+	    -ms-transition: background-position .75s ease-out;
+	     -o-transition: background-position .75s ease-out;
+	        transition: background-position .75s ease-out;
+}
