@@ -30,7 +30,7 @@
                     <img src="img/white_arrow.png" class="play_arrow">
                 </div>
                 <h4 class='video_title'><%= videoTitle %></h4>
-                <p><%= dateToHumanReadable(pubDate) %></p>
+                <p><%= Utils.dateToHumanReadable(pubDate) %></p>
                 <p class='blurb'><%= videoBlurb %></p>
                 <input type="button" class="btn btn-link more_info" value='More info'>
             </div>
@@ -38,13 +38,13 @@
 
         <script type='text/template' id='videoPlayerTemplate'>
             <video src="<%= videoUrl %>" autoplay controls poster='<%= thumbnailUrl %>' class='video_element'>
-                Your browser doesn&amp;t appear to support playing this video. Click <a href='<%= videoUrl %>'>here</a> to download it (<%= (typeof fileSize === 'number') ? fileSizeToHumanReadable(fileSize) : '' %>)
+                Your browser doesn&amp;t appear to support playing this video. Click <a href='<%= videoUrl %>'>here</a> to download it (<%= (typeof fileSize === 'number') ? Utils.fileSizeToHumanReadable(fileSize) : '' %>)
             </video>
         </script>
         <script id='metaDataTemplate' type='text/template'>
             <p><%= content %></p>
             <p><a href='<%= link %>'>View on Ted.com</a></p>
-            <p><a href='<%= videoUrl %>'>Download file</a> - <%= fileSizeToHumanReadable(fileSize) %></p>
+            <p><a href='<%= videoUrl %>'>Download video (<%= videoExtension %>)</a> - <%= Utils.fileSizeToHumanReadable(fileSize) %></p>
         </script>
         <script src="js/underscore.js"></script>
         <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.2/jquery.min.js"></script>

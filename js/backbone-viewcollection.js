@@ -6,10 +6,10 @@ Backbone.ViewCollection = Backbone.View.extend({
 	},
 	render: function() {
 		if(!this.collection) {
-			throw "ViewCollection needs a collection of models to render";
+			throw new Error("ViewCollection needs a collection of models to render");
 		}
 		if(!this.options.BaseViewClass) {
-			throw "Need a base view class";
+			throw new Error("Need a base view class");
 		}
 		var me = this,
 			BaseView = this.options.BaseViewClass;

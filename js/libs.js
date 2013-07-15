@@ -1,8 +1,7 @@
-'use strict';
 var FeedEntries = Backbone.Collection.extend({
 	fetch: function() {
 		var feed = new google.feeds.Feed(this.feedUrl);
-		feed.setNumEntries(50);
+		feed.setNumEntries(51);
 		feed.includeHistoricalEntries();
 		var me = this;
 		feed.load(function(result) {
@@ -48,12 +47,14 @@ var FeedItemView = Backbone.View.extend({
 	toggleMoreInfo: function() {
 		if(!this._isExpanded) {
 			var model_attrs = this.model.attributes;
+			var model_media_contents = model_attrs.mediaGroups[0].contents[0];
 			var meta_data = {
 				content: model_attrs.content,
 				pubDate: model_attrs.publishedDate,
-				fileSize: model_attrs.mediaGroups[0].contents[0].fileSize,
+				fileSize: model_media_contents.fileSize,
 				link: model_attrs.link,
-				videoUrl: model_attrs.mediaGroups[0].contents[0].url
+				videoUrl: model_media_contents.url,
+				videoExtension: "." + model_media_contents.type.split("/")[1] //splits a MIME type like video/mp4
 			};
 			this._$blurb.html(this.compiledMetaDataTpl(meta_data));
 			this._$info_toggle.val('Less Info');
@@ -97,6 +98,11 @@ var SearchView = Backbone.View.extend({
 		//we can limit filtering to certain attributes of the model in the collection
 		//by passing an "attributes" option
 		var search_attributes = this.attributes;
+		var comparison_property;
+		var me = this;
+		//update this prop while we search through the model attributes
+		var model_visibility = true;
+		var attr_contains_text;
 		//no attributes specified to search on, so search every attribute
 		if(!search_attributes) {
 			// has complexity of approx n (collection.length)* m (model_attrs.length) * o (comparison_property.length); 
@@ -105,34 +111,54 @@ var SearchView = Backbone.View.extend({
 				var model_attrs = model.attributes;
 				for(var key in model_attrs) {
 					if(model_attrs.hasOwnProperty(key)) {
-						var comparison_property = model_attrs[key];
+						comparison_property = model_attrs[key];
 						if(comparison_property !== undefined) {
-							if(typeof comparison_property === 'number') comparison_property = comparison_property.toString();
-							comparison_property = comparison_property.toLowerCase();
-							if(comparison_property.indexOf(entered_text) === -1) model.set('isVisible', false);
-							else model.set('isVisible', true);
+							attr_contains_text = me._compareProps(comparison_property, entered_text);
+							if(typeof attr_contains_text === 'boolean') {
+								if(attr_contains_text) {
+									model_visibility = true;
+									break; //we've already determined that one of the model attributes contains the string; search no more
+								} 
+								else model_visibility = false;
+							}
 						}
 					}
 				}
+				model.set('isVisible', model_visibility);
 			});
 		}
 		else if(typeof search_attributes === 'object') {
 			collection.each( function( model, key, collection ) {
 				for (var i = search_attributes.length - 1; i >= 0; i--) {
 					var attr = search_attributes[i];
-					var comparison_property = model.get(attr);
+					comparison_property = model.get(attr);
 					if(comparison_property !== undefined) {
-						if(typeof comparison_property === 'number') comparison_property = comparison_property.toString();
-						comparison_property = comparison_property.toLowerCase();
-						if(comparison_property.indexOf(entered_text) === -1) model.set('isVisible', false);
-						else model.set('isVisible', true);
+						attr_contains_text = me._compareProps(comparison_property, entered_text);
+						if(typeof attr_contains_text === 'boolean') {
+							if(attr_contains_text) {
+								model_visibility = true;
+								break; //we've already determined that one of the model attributes contains the string; search no more
+							} 
+							else model_visibility = false;
+						}
 					}
-				};
-					
-				
+				}
+				model.set('isVisible', model_visibility);
 			});
 		}
-
+	},
+	//return true if toCheck contains reference,
+	//false if it doesn't
+	//0 if toCheck isn't a string and can't be wrangled into one
+	//TODO: see if toCheck can also be a date or something else
+	_compareProps: function(toCheck, reference) {
+		if(typeof toCheck === 'number') toCheck = toCheck.toString();
+		if(typeof toCheck === 'string'){
+			toCheck = toCheck.toLowerCase();
+			if(toCheck.indexOf(reference) === -1)return false;
+			else return true;
+		}
+		else return 0;
 	},
 	initialize: function(config) {
 		if(!config.collection || !config.collection instanceof Backbone.Collection) throw new Error('No collection specified for search view');
@@ -160,26 +186,28 @@ var VideoPlayer = Backbone.View.extend({
 		}
 	}
 });
+var Utils = {
+	fileSizeToHumanReadable: function (fileSize) {
+		var one_kb = 1024;
+		var one_mb = one_kb * 1024;
+		var one_gb = one_mb * 1024;
+		var one_tb = one_gb * 1024;
+		if(typeof fileSize !== 'number') fileSize = parseFloat(fileSize);
+		if(isNaN(fileSize)) throw new Error('Not a number'); 
+		else {
+			if(fileSize < one_kb) return fileSize + 'bytes';
+			else if(fileSize >= one_kb && fileSize < one_mb) return (fileSize / one_kb).toFixed(1).toString() + ' kb';
+			else if(fileSize >= one_mb && fileSize < one_gb) return (fileSize / one_mb).toFixed(1).toString() + ' mb';
+			else if(fileSize >= one_gb && fileSize < one_tb) return (fileSize / one_gb).toFixed(1).toString() + ' gb';
+		}
+	},
+	dateToHumanReadable: function (date) {
+	 	var date_obj = new Date(date);
+	 	var months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+		if(date_obj.toString !== 'Invalid Date') {
+			return date_obj.getDate().toString() + " " + months[date_obj.getMonth()] + ", " + date_obj.getFullYear().toString();
+		}
+		return '';
+	}
+}
 
-function fileSizeToHumanReadable (fileSize) {
-	var one_kb = 1024;
-	var one_mb = one_kb * 1024;
-	var one_gb = one_mb * 1024;
-	var one_tb = one_gb * 1024;
-	if(typeof fileSize !== 'number') fileSize = parseFloat(fileSize);
-	if(isNaN(fileSize)) throw new Error('Not a number'); 
-	else {
-		if(fileSize < one_kb) return fileSize + 'bytes';
-		else if(fileSize >= one_kb && fileSize < one_mb) return (fileSize / one_kb).toFixed(2).toString() + ' kb';
-		else if(fileSize >= one_mb && fileSize < one_gb) return (fileSize / one_mb).toFixed(2).toString() + ' mb';
-		else if(fileSize >= one_gb && fileSize < one_tb) return (fileSize / one_gb).toFixed(2).toString() + ' mb';
-	}
-}
-function dateToHumanReadable (date) {
- 	var date_obj = new Date(date);
- 	var months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-	if(date_obj.toString !== 'Invalid Date') {
-		return date_obj.getDate().toString() + " " + months[date_obj.getMonth()] + ", " + date_obj.getFullYear().toString();
-	}
-	return '';
-}
