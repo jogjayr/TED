@@ -34,3 +34,6 @@
 .video_pane:hover .play_arrow{
     display:inline;
 }
+.video_element {
+	width:100%;
+}

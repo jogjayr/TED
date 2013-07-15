@@ -36,7 +36,7 @@
         </script>
 
         <script type='text/template' id='videoPlayerTemplate'>
-            <video src="<%= videoUrl %>" autoplay controls poster='<%= thumbnailUrl %>'>
+            <video src="<%= videoUrl %>" autoplay controls poster='<%= thumbnailUrl %>' class='video_element'>
                 Your browser doesn&amp;t appear to support playing this video. Click <a href='<%= videoUrl %>'>here</a> to download it (<%= (typeof fileSize === 'number') ? fileSizeToHumanReadable(fileSize) : '' %>)
             </video>
         </script>
