@@ -1,3 +1,4 @@
+//http://jayraj.net/2013/05/19/backbone-view-collection-part-1
 Backbone.ViewCollection = Backbone.View.extend({
   delegateChildEvents: function() {
 		_.each(this.childViews, function (childView) {

@@ -13,8 +13,8 @@
             <div class="navbar-inner">
              <div class="container">
                  <a href="/" class="brand">TED Talks</a>
-                 <form class="navbar-search pull-right">
-                   <input id='filter' type="text" class="search-query" placeholder="Search">
+                 <form id='filter' class="navbar-search pull-right search_form">
+                   <input type="text" class="search-query" placeholder="Search">
                  </form>
              </div>
             </div>
@@ -30,7 +30,7 @@
                     <img src="img/white_arrow.png" class="play_arrow">
                 </div>
                 <h4 class='video_title'><%= videoTitle %></h4>
-                <p><%= Utils.dateToHumanReadable(pubDate) %></p>
+                <p><%= pubDate %></p>
                 <p class='blurb'><%= videoBlurb %></p>
                 <input type="button" class="btn btn-link more_info" value='More info'>
             </div>
@@ -58,8 +58,12 @@
 
         <!-- Project -->
         <script src="js/libs.js"></script>
+        <script src='js/collections/feed_entries.js'></script>
+        <script src='js/views/feed_item.js'></script>
+        <script src='js/views/feed_list.js'></script>
+        <script src='js/views/search.js'></script>
+        <script src='js/views/video_player.js'></script>
         <script src="js/application.js?1"></script>
-
         <script>
             google.load("feeds", "1");
             google.setOnLoadCallback(function() {
